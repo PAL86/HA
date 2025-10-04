@@ -206,3 +206,6 @@ input_datetime:
     name: "EV9 Tank Laad starttijd"
     has_date: true
     has_time: true
+
+shell_command:
+    pushupdates_to_github: /bin/bash pushupdates.sh
