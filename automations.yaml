@@ -1,119 +1,132 @@
-# ========== START (met 'zet start-SoC alleen als nog niet gezet') ==========
 - id: ev9_tank_charge_session_start
-  alias: "EV9 Tank start laadsessie (thuis)"
+  alias: EV9 Tank start laadsessie (thuis)
   mode: single
   trigger:
-    # Laden gaat aan (sommige integraties gebruiken 'on', andere 'Charging')
-    - trigger: state
-      entity_id: binary_sensor.ev_tank_ev_battery_charge
-    # HA start terwijl auto al laadt
-    - trigger: homeassistant
-      event: start
-    # Auto komt thuis terwijl hij al laadt
-    - trigger: state
-      entity_id: device_tracker.ev_tank_location
+  - trigger: state
+    entity_id: binary_sensor.ev_tank_ev_battery_charge
+  - trigger: homeassistant
+    event: start
+  - trigger: state
+    entity_id: device_tracker.ev_tank_location
   condition:
-    # Thuis? (home/Home)
-    - condition: template
-      value_template: "{{ states('device_tracker.ev_tank_location')|lower == 'home' }}"
-    # Laden? (on/true/charging)
-    - condition: template
-      value_template: >
-        {{ states('binary_sensor.ev_tank_ev_battery_charge')|lower in ['on','true','charging'] }}
-    # Nog geen actieve sessie
-    - condition: state
-      entity_id: input_boolean.ev9_tank_charging_active
-      state: "off"
-  action:
-    # 1) Zet start-SoC alleen als die nog niet gezet is (<= 0)
-    - choose:
-        - conditions:
-            - condition: template
-              value_template: "{{ states('input_number.ev9_tank_charge_soc_start')|float(0) <= 0 }}"
-          sequence:
-            - action: input_number.set_value
-              target: { entity_id: input_number.ev9_tank_charge_soc_start }
-              data:
-                value: "{{ states('sensor.ev9_tank_soc') | float(0) }}"
-      default: []
-    # 2) Leg starttijd vast (elke keer bij start)
-    - action: input_datetime.set_datetime
-      target: { entity_id: input_datetime.ev9_tank_charge_start_time }
-      data:
-        datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
-    # 3) Sessie markeren als actief
-    - action: input_boolean.turn_on
-      target: { entity_id: input_boolean.ev9_tank_charging_active }
+  - condition: template
+    value_template: '{{ states(''device_tracker.ev_tank_location'')|lower == ''home''
+      }}'
+  - condition: template
+    value_template: '{{ states(''binary_sensor.ev_tank_ev_battery_charge'')|lower
+      in [''on'',''true'',''charging''] }}
 
-# ========== STOP ==========
+      '
+  - condition: state
+    entity_id: input_boolean.ev9_tank_charging_active
+    state: 'off'
+  action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ states(''input_number.ev9_tank_charge_soc_start'')|float(0)
+          <= 0 }}'
+      sequence:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.ev9_tank_charge_soc_start
+        data:
+          value: '{{ states(''sensor.ev9_tank_soc'') | float(0) }}'
+    default: []
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.ev9_tank_charge_start_time
+    data:
+      datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.ev9_tank_charging_active
 - id: ev9_tank_charge_session_end
-  alias: "EV9 Tank stop laadsessie"
+  alias: EV9 Tank stop laadsessie
   mode: single
   trigger:
-    # Laden stopt (gaat naar iets anders dan 'on/charging') -> we vangen elke state change
-    - trigger: state
-      entity_id: binary_sensor.ev_tank_ev_battery_charge
-      for:
-        minutes: 2
-    # Vertrekt van thuis
-    - trigger: state
-      entity_id: device_tracker.ev_tank_location
-      for:
-        minutes: 3
+  - trigger: state
+    entity_id: binary_sensor.ev_tank_ev_battery_charge
+    for:
+      minutes: 2
+  - trigger: state
+    entity_id: device_tracker.ev_tank_location
+    for:
+      minutes: 3
   condition:
-    # Alleen stoppen als er een sessie loopt
-    - condition: state
-      entity_id: input_boolean.ev9_tank_charging_active
-      state: "on"
-    # En óf we laden niet meer, óf we zijn niet meer thuis
-    - condition: or
-      conditions:
-        - condition: template
-          value_template: >
-            {{ states('binary_sensor.ev_tank_ev_battery_charge')|lower not in ['on','true','charging'] }}
-        - condition: template
-          value_template: "{{ states('device_tracker.ev_tank_location')|lower != 'home' }}"
-  action:
-    - variables:
-        start_soc: "{{ states('input_number.ev9_tank_charge_soc_start') | float(0) }}"
-        end_soc: "{{ states('sensor.ev9_tank_soc') | float(0) }}"
-        cap: "{{ states('sensor.ev9_tank_capacity_kwh') | float(0) }}"
-        session_kwh: >
-          {% if end_soc >= start_soc and cap > 0 %}
-            {{ ((end_soc - start_soc) / 100 * cap) | round(2) }}
-          {% else %}
-            0
-          {% endif %}
+  - condition: state
+    entity_id: input_boolean.ev9_tank_charging_active
+    state: 'on'
+  - condition: or
+    conditions:
     - condition: template
-      value_template: "{{ session_kwh > 0 }}"
-    - action: input_number.set_value
-      target:
-        entity_id: input_number.ev9_tank_total_charged_kwh
-      data:
-        value: "{{ (states('input_number.ev9_tank_total_charged_kwh') | float(0) + session_kwh) | round(2) }}"
-    - action: input_boolean.turn_off
-      target:
-        entity_id: input_boolean.ev9_tank_charging_active
+      value_template: '{{ states(''binary_sensor.ev_tank_ev_battery_charge'')|lower
+        not in [''on'',''true'',''charging''] }}
+
+        '
+    - condition: template
+      value_template: '{{ states(''device_tracker.ev_tank_location'')|lower != ''home''
+        }}'
+  action:
+  - variables:
+      start_soc: '{{ states(''input_number.ev9_tank_charge_soc_start'') | float(0)
+        }}'
+      end_soc: '{{ states(''sensor.ev9_tank_soc'') | float(0) }}'
+      cap: '{{ states(''sensor.ev9_tank_capacity_kwh'') | float(0) }}'
+      session_kwh: "{% if end_soc >= start_soc and cap > 0 %}\n  {{ ((end_soc - start_soc)
+        / 100 * cap) | round(2) }}\n{% else %}\n  0\n{% endif %}\n"
+  - condition: template
+    value_template: '{{ session_kwh > 0 }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.ev9_tank_total_charged_kwh
+    data:
+      value: '{{ (states(''input_number.ev9_tank_total_charged_kwh'') | float(0) +
+        session_kwh) | round(2) }}'
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.ev9_tank_charging_active
 - id: ev9_fix_start_soc_when_active
-  alias: "EV9: fixeer start-SoC zodra sessie actief is"
+  alias: 'EV9: fixeer start-SoC zodra sessie actief is'
   mode: restart
   trigger:
-    - trigger: state
-      entity_id: input_boolean.ev9_tank_charging_active
-      to: "on"
-    - trigger: homeassistant
-      event: start
+  - trigger: state
+    entity_id: input_boolean.ev9_tank_charging_active
+    to: 'on'
+  - trigger: homeassistant
+    event: start
   condition:
-    - condition: state
-      entity_id: input_boolean.ev9_tank_charging_active
-      state: "on"
-    - condition: template
-      value_template: "{{ states('input_number.ev9_tank_charge_soc_start')|float(0) <= 0 }}"
-    - condition: template
-      value_template: "{{ 0 < states('sensor.ev9_tank_soc')|float(0) <= 100 }}"
+  - condition: state
+    entity_id: input_boolean.ev9_tank_charging_active
+    state: 'on'
+  - condition: template
+    value_template: '{{ states(''input_number.ev9_tank_charge_soc_start'')|float(0)
+      <= 0 }}'
+  - condition: template
+    value_template: '{{ 0 < states(''sensor.ev9_tank_soc'')|float(0) <= 100 }}'
   action:
-    - action: input_number.set_value
-      target:
-        entity_id: input_number.ev9_tank_charge_soc_start
-      data:
-        value: "{{ states('sensor.ev9_tank_soc')|float(0) }}"
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.ev9_tank_charge_soc_start
+    data:
+      value: '{{ states(''sensor.ev9_tank_soc'')|float(0) }}'
+- id: '1759584807046'
+  alias: Gitpush
+  description: ''
+  triggers:
+  - trigger: time
+    at: 02:00:00
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    - sat
+    - sun
+  conditions: []
+  actions:
+  - action: shell_command.pushupdates_to_github
+    metadata: {}
+    data: {}
+  mode: single
