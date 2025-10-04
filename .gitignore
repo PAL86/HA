@@ -16,4 +16,4 @@ secrets.yaml
 .google.token
 home-assistant.log
 id_rsa*
-home-assistant_v2
+home-assistant_v2*
