@@ -41,18 +41,7 @@ command_line:
     json_attributes:
       - result
 
-# 6) Utility meters — EV9 dag/maand gebaseerd op de "clean" teller
-utility_meter:
-  ev9_tank_charged_daily:
-    source: sensor.ev9_tank_total_charged_kwh_clean
-    cycle: daily
-  ev9_tank_charged_monthly:
-    source: sensor.ev9_tank_total_charged_kwh_clean
-    cycle: monthly
-
-# 7) Template sensoren
 template:
-  # 7a) Marstek basis-sensoren
   - sensor:
       - name: "Marstek Mode"
         state: >
@@ -75,79 +64,6 @@ template:
           {% set r = state_attr('sensor.marstek_es_raw','result') %}
           {{ r.ongrid_power if r else none }}
 
-  # 7b) EV9 capaciteit/SoC + sessie + live (basis voor "clean")
-  - sensor:
-      - name: ev9_tank_capacity_kwh
-        unit_of_measurement: "kWh"
-        state: "100"
-
-      - name: ev9_tank_soc
-        unit_of_measurement: "%"
-        state: "{{ states('sensor.ev_tank_ev_battery_level') | float(0) }}"
-
-      - name: ev9_tank_session_energy_kwh
-        unit_of_measurement: "kWh"
-        device_class: energy
-        state_class: total
-        state: >
-          {% set start = states('input_number.ev9_tank_charge_soc_start')|float(0) %}
-          {% set now_soc = states('sensor.ev9_tank_soc')|float(0) %}
-          {% set cap = states('sensor.ev9_tank_capacity_kwh')|float(0) %}
-          {% set active = is_state('input_boolean.ev9_tank_charging_active','on') %}
-          {# geldig: sessie actief, cap>0, 0<start<=now<=100 #}
-          {% if active and cap > 0 and start > 0 and start <= now_soc and now_soc <= 100 %}
-            {{ ((now_soc - start)/100 * cap) | round(3) }}
-          {% else %} 0 {% endif %}
-
-      - name: ev9_tank_total_charged_kwh_live
-        unit_of_measurement: "kWh"
-        device_class: energy
-        state_class: total_increasing
-        state: >
-          {{ (states('input_number.ev9_tank_total_charged_kwh')|float(0) +
-              states('sensor.ev9_tank_session_energy_kwh')|float(0)) | round(3) }}
-
-  # 7c) EV9 kosten & Tibber totaal/percentage (59 ct/kWh)
-  - sensor:
-      - name: ev9_tank_total_cost
-        unit_of_measurement: "€"
-        device_class: monetary
-        state: >
-          {{ (states('sensor.ev9_tank_total_charged_kwh_clean')|float(0) * 0.59) | round(2) }}
-
-      - name: ev9_tank_daily_cost
-        unit_of_measurement: "€"
-        device_class: monetary
-        state: >
-          {{ (states('sensor.ev9_tank_charged_daily')|float(0) * 0.59) | round(2) }}
-
-      - name: ev9_tank_monthly_cost
-        unit_of_measurement: "€"
-        device_class: monetary
-        state: >
-          {{ (states('sensor.ev9_tank_charged_monthly')|float(0) * 0.59) | round(2) }}
-
-      - name: tibber_total_monthly_cost_detected
-        unit_of_measurement: "€"
-        device_class: monetary
-        state: "{{ states('sensor.peursumstraat_59_monthly_cost') | float(0) }}"
-
-      - name: ev9_tank_monthly_cost_share
-        unit_of_measurement: "%"
-        state: >
-          {% set ev = states('sensor.ev9_tank_monthly_cost')|float(0) %}
-          {% set total = states('sensor.tibber_total_monthly_cost_detected')|float(0) %}
-          {{ (ev / total * 100) | round(1) if total > 0 else 0 }}
-
-  # 7d) Expose "clean" total als echte energy-sensor (waarde komt uit helper)
-  - sensor:
-      - name: ev9_tank_total_charged_kwh_clean
-        unit_of_measurement: "kWh"
-        device_class: energy
-        state_class: total_increasing
-        state: "{{ states('input_number.ev9_total_clean_kwh') | float(0) | round(3) }}"
-
-# 8) Sensor platform — Marstek energie-integratie
 sensor:
   - platform: integration
     source: sensor.marstek_charge_power
@@ -163,49 +79,5 @@ sensor:
     round: 3
     method: trapezoidal
 
-# 9) Helpers — EV9
-input_boolean:
-  ev9_tank_charging_active:
-    name: "EV9 Tank Laden actief"
-
-input_number:
-  ev9_tank_charge_soc_start:
-    name: "EV9 Tank Start SoC (%)"
-    min: 0
-    max: 100
-    step: 0.1
-    mode: box
-    unit_of_measurement: "%"
-
-  ev9_tank_total_charged_kwh:
-    name: "EV9 Tank Totaal geladen (kWh)"
-    min: 0
-    max: 100000
-    step: 0.01
-    mode: box
-    unit_of_measurement: "kWh"
-
-  ev9_max_step_kwh:
-    name: "EV9 max stap (kWh)"
-    min: 0.5
-    max: 50
-    step: 0.5
-    mode: box
-    unit_of_measurement: "kWh"
-
-  ev9_total_clean_kwh: # monotone, geclampte teller (bron voor ..._clean)
-    name: "EV9 Total Clean (kWh)"
-    min: 0
-    max: 100000
-    step: 0.001
-    mode: box
-    unit_of_measurement: "kWh"
-
-input_datetime:
-  ev9_tank_charge_start_time:
-    name: "EV9 Tank Laad starttijd"
-    has_date: true
-    has_time: true
-
 shell_command:
-    pushupdates_to_github: /bin/bash pushupdates.sh
+  pushupdates_to_github: /bin/bash pushupdates.sh
