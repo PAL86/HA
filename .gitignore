@@ -4,11 +4,16 @@
 !*.sh
 !*.js*
 
-!node-red/
+notebooks/
+esphome/
+deps/
+custom_components/
 secrets.yaml
-.ssh
+*.log
+*.log.txt
 .storage
 .cloud
 .google.token
-home-assistant.log*
+home-assistant.log
 id_rsa*
+home-assistant_v2
