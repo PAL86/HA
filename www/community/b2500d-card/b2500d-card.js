@@ -28,6 +28,7 @@ var en = {
     "device": "Device ID (e.g. b2500d)",
     "entities": "Alternative Entities (object)",
     "compact": "Compact View",
+    "icon": "Show storage icon",
     "solar": "Show Solar",
     "output": "Show Output",
     "battery": "Show Battery",
@@ -40,8 +41,12 @@ var en = {
     "device": "Enter the device short name (only ONE: either device OR entities).",
     "entities": "Alternative: object with entities (e.g. { \"solar_power\": \"sensor.x\" })",
     "compact": "Shows a more compact version of the card",
+    "icon": "Hide the storage icon",
     "settings": "Only shown if device ID is used",
-    "max_input_power": "Maximum input power per input of the storage system",
+    "max_input_power": "Maximum input power string 1",
+    "max_input_power2": "Maximum input power string 2",
+    "max_input_power3": "Maximum input power string 3",
+    "max_input_power4": "Maximum input power string 4",
     "custom_settings": "Add your custom settings here (entities mode only)",
   }
 };
@@ -74,6 +79,7 @@ var de = {
     "device": "Geräte-ID (z. B. b2500d)",
     "entities": "Alternative Entitäten (Objekt)",
     "compact": "Kompakt-Ansicht",
+    "icon": "Speicher Icon anzeigen",
     "solar": "Solar anzeigen",
     "output": "Ausgang anzeigen",
     "battery": "Batterie anzeigen",
@@ -86,8 +92,12 @@ var de = {
     "device": "Gib die Geräte-Kurzbezeichnung an (nur ODER, nicht beides: device ODER entities).",
     "entities": "Alternativ: Objekt mit Entitäten (z. B. { \"solar_power\": \"sensor.x\" })",
     "compact": "Zeigt eine kompaktere Variante der Karte",
+     "icon": "Blendet das Speicher Icon aus",
     "settings": "Wird nur angezeigt, wenn Geräte-ID verwendet wird",
-    "max_input_power": "Maximale Eingangsleistung am Speicher pro Eingang",
+    "max_input_power": "Maximale Eingangsleistung String 1",
+    "max_input_power2": "Maximale Eingangsleistung String 2",
+    "max_input_power3": "Maximale Eingangsleistung String 3",
+    "max_input_power4": "Maximale Eingangsleistung String 4",
     "custom_settings" : "Füge hier deine benutzerdefinierten Einstellungen hinzu (nur Entitiy Modus)",
   }
 };
@@ -120,6 +130,7 @@ var es = {
     "device": "ID del dispositivo (ej. b2500d)",
     "entities": "Entidades alternativas (objeto)",
     "compact": "Vista compacta",
+    "icon": "Mostrar icono de almacenamiento",
     "solar": "Mostrar solar",
     "output": "Mostrar salida",
     "battery": "Mostrar batería",
@@ -132,8 +143,12 @@ var es = {
     "device": "Introduce el nombre corto del dispositivo (solo UNO: device O entities).",
     "entities": "Alternativa: objeto con entidades (ej. { \"solar_power\": \"sensor.x\" })",
     "compact": "Muestra una versión más compacta de la tarjeta",
+    "icon": "Ocultar icono de almacenamiento",
     "settings": "Solo se muestra si se utiliza la ID del dispositivo",
-    "max_input_power": "Potencia máxima de entrada por cada entrada del sistema de almacenamiento",
+    "max_input_power": "Potencia de entrada máxima cadena 1",
+    "max_input_power2": "Potencia de entrada máxima cadena 2",
+    "max_input_power3": "Potencia de entrada máxima cadena 3",
+    "max_input_power4": "Potencia de entrada máxima cadena 4",
     "custom_settings": "Agrega tus ajustes personalizados aquí (solo modo entidades)",
   }
 };
@@ -166,6 +181,7 @@ var fr = {
     "device": "ID de l’appareil (ex. b2500d)",
     "entities": "Entités alternatives (objet)",
     "compact": "Vue compacte",
+    "icon": "Afficher l’icône de stockage",
     "solar": "Afficher solaire",
     "output": "Afficher sortie",
     "battery": "Afficher batterie",
@@ -178,13 +194,68 @@ var fr = {
     "device": "Indiquez le nom abrégé de l’appareil (un seul : device OU entities).",
     "entities": "Alternative : objet avec entités (ex. { \"solar_power\": \"sensor.x\" })",
     "compact": "Affiche une version plus compacte de la carte",
+    "icon": "Masquer l’icône de stockage",
     "settings": "Uniquement affiché si un ID d’appareil est utilisé",
-    "max_input_power": "Puissance d’entrée maximale par entrée du système de stockage",
+    "max_input_power": "Puissance d’entrée maximale chaîne 1",
+    "max_input_power2": "Puissance d’entrée maximale chaîne 2",
+    "max_input_power3": "Puissance d’entrée maximale chaîne 3",
+    "max_input_power4": "Puissance d’entrée maximale chaîne 4",
     "custom_settings": "Ajoutez vos paramètres personnalisés ici (mode entités uniquement)",
   }
 };
 
-const languages = { en, de, es, fr };
+var nl = {
+  "errors": {
+    "both": "Specificeer ofwel een 'device' of 'entities', niet beide.",
+    "missing": "Je moet ofwel een 'device' of 'entities' opgeven.",
+    "entities_invalid" : "Enkel [p1_power + p2_power] of [p1_power + p2_power + p3_power + p4_power] zijn toegestaan",
+  },
+  "labels": {
+    "last_update": "Laatste update",
+    "simul_charge": "Gelijktijdig laden/ontladen",
+    "full_then_discharge": "Volledig laden en dan ontladen",
+    "charging_mode": "Laadmodus",
+    "discharge_mode": "Automatische ontlaadmodus",
+    "surplus": "Overschot"
+  },
+  "card": {
+    "solar": "Zonne-energie",
+    "output": "Uitvoer",
+    "realtime": "Realtime vermogen",
+    "battery": "Batterij",
+    "production": "Productie",
+    "today": "Vandaag",
+    "settings": "Instellingen"
+  },
+  "editor": {
+    "name": "Kaartnaam",
+    "device": "Device ID (bv. b2500d)",
+    "entities": "Alternatieve entiteiten (object)",
+    "compact": "Compacte weergave",
+    "icon": "Opslagpictogram weergeven",
+    "solar": "Toon zonne-energie",
+    "output": "Toon uitvoer",
+    "battery": "Toon batterij",
+    "production": "Toon productie",
+    "settings": "Toon instellingen",
+    "max_input_power": "Maximaal invoervermogen (W)",
+    "custom_settings": "Aangepaste instellingen",
+  },
+  "helpers": {
+    "device": "Voer de korte naam van het apparaat in (slechts ÉÉN: of device OF entities).",
+    "entities": "Alternatief: object met entiteiten (bv. { \"solar_power\": \"sensor.x\" })",
+    "compact": "Toont een compactere versie van de kaart",
+    "icon": "Opslagpictogram verbergen",
+    "settings": "Alleen zichtbaar als een Device ID wordt gebruikt",
+    "max_input_power": "Maximaal ingangsvermogen string 1",
+    "max_input_power2": "Maximaal ingangsvermogen string 2",
+    "max_input_power3": "Maximaal ingangsvermogen string 3",
+    "max_input_power4": "Maximaal ingangsvermogen string 4",
+    "custom_settings": "Voeg hier je aangepaste instellingen toe (alleen in entities-modus)",
+  }
+};
+
+const languages = { en, de, es, fr, nl };
 
 
 function _getLangCode(langInput) {
@@ -397,8 +468,8 @@ class B2500DCard extends LitElement {
         right:0; left:auto;
         background: rgb(84, 158,164);
       }
-      .barlabels{ display:flex; justify-content:space-between; margin-top:8px; font-weight:400; color: #549EA4; }
-      .barlabels .hint{ color: #549EA4; font-weight:400; font-size:12px; margin-top:2px }
+      .barlabels{ display:flex; justify-content:space-around; margin-top:8px; font-weight:400; color: #549EA4; align-items: center; }
+      .barlabels .hint{ color: #549EA4; font-weight:400; font-size:12px; margin-top:2px; }
 
       .battery{
         display:flex; align-items:center; justify-content:center; padding:10px 0 4px;
@@ -562,6 +633,7 @@ class B2500DCard extends LitElement {
       settings: true,
       solar: true,
       compact: false,
+      icon: true,
       ...config
     };
     if (this._hass) {
@@ -711,7 +783,7 @@ class B2500DCard extends LitElement {
     const date = new Date(isoString);
 
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Monate 0-11
+    const month = String(date.getMonth() + 1).padStart(2, '0'); 
     const day = String(date.getDate()).padStart(2, '0');
     const hour = String(date.getHours()).padStart(2, '0');
     const minute = String(date.getMinutes()).padStart(2, '0');
@@ -722,40 +794,20 @@ class B2500DCard extends LitElement {
 
 
 
-  render() {
-     if (this._configError) {
-        return html`<ha-alert alert-type="error">${this._configError}</ha-alert>`;
-     }
+//RENDER COMPACT
+ _renderCompact(batteryClass){
+     const percent = this._batteryPercent ?? 0;
 
-    const solar = Number(this._solarPower);
-    const output = Number(this._outputPower);
-
-    const lang = this._hass?.language || "en";
-    const batteryClass = solar > output && this._batteryPercent < 100
-      ? 'charging'
-      : output > solar && this._batteryPercent > 0
-        ? 'discharging'
-        : '';
-
-
-
-    if (this.config.compact) {
-      const percent = this._batteryPercent ?? 0;
-
-      // Farbe bestimmen
       let color = "green";
       if (percent <= 19) {
         color = "red";
       } else if (percent <= 59) {
         color = "orange";
       }
-      // Icon abhängig vom Prozentwert wählen (auf nächste 10 abrunden)
       let icon = "";
       if (percent >= 100) {
-        // Sonderfall: 100% hat eigenes Icon
         icon = "mdi:battery";
       } else if (percent < 10) {
-        // Unter 10% gibt es nur die Outline-Version
         icon = "mdi:battery-outline";
       } else {
         let level = Math.floor(percent / 10) * 10;
@@ -792,14 +844,52 @@ class B2500DCard extends LitElement {
           </div>
         </div>
       `;
+ }
+
+//RENDER UNIT
+_renderUnit(batteryClass){
+  return html`  
+  <div class="unit">
+     <div class="battery-bar">
+       <div class="battery-fill ${batteryClass}" style="height:${Math.min(this._batteryPercent, 98)}%"></div>
+     </div>
+  </div>
+    `
+}
+
+
+/////////////////
+// RENDER
+/////////////////
+  render() {
+     if (this._configError) {
+        return html`<ha-alert alert-type="error">${this._configError}</ha-alert>`;
+     }
+
+    const solar = Number(this._solarPower);
+    const output = Number(this._outputPower);
+
+    const lang = this._hass?.language || "en";
+    const batteryClass = solar > output && this._batteryPercent < 100
+      ? 'charging'
+      : output > solar && this._batteryPercent > 0
+        ? 'discharging'
+        : '';
+
+    if (this.config.compact) {
+      return this._renderCompact(batteryClass);
     }
 
     // Fallback: 600 wenn nix übergeben (standard beim b2500d)
     const maxInputPower = this.config.max_input_power || 600;
+    const maxInputPower2 = this.config.max_input_power2 || 600;
+    const maxInputPower3 = this.config.max_input_power3 || 600;
+    const maxInputPower4 = this.config.max_input_power4 || 600;
+    
     const p1Pct = Math.round((this._p1 / maxInputPower) * 100);
-    const p2Pct = Math.round((this._p2 / maxInputPower) * 100);
-    const p3Pct = Math.round((this._p3 / maxInputPower) * 100);
-    const p4Pct = Math.round((this._p4 / maxInputPower) * 100);
+    const p2Pct = Math.round((this._p2 / maxInputPower2) * 100);
+    const p3Pct = Math.round((this._p3 / maxInputPower3) * 100);
+    const p4Pct = Math.round((this._p4 / maxInputPower4) * 100);
 
 
     const selectEntity = this._hass.states[`select.${this.config.device}_charging_mode`];
@@ -820,11 +910,7 @@ class B2500DCard extends LitElement {
           </div>
 
           <!-- Unit mit Akku-Balken -->
-          <div class="unit">
-            <div class="battery-bar">
-              <div class="battery-fill ${batteryClass}" style="height:${Math.min(this._batteryPercent, 98)}%"></div>
-            </div>
-          </div>
+           ${this.config.icon ? this._renderUnit(batteryClass):""}
         </div>
 
         <section class="grid">
@@ -845,9 +931,9 @@ class B2500DCard extends LitElement {
             <div class="barwrap">
               <div class="bar"><div class="fill" style="width:${p1Pct}%"></div></div>
               <div class="bar  ${this._p3 == null && this._p4 == null ? "r" : ""}"><div class="fill" style="width:${p2Pct}%"></div></div>
-            ${this._p3 != null ? html`<div class="bar r"><div class="fill" style="width:${p3Pct}%"></div></div>`
+            ${this._p3 != null ? html`<div class="bar"><div class="fill" style="width:${p3Pct}%"></div></div>`
               : ""}
-            ${this._p4 != null ? html`<div class="bar r"><div class="fill" style="width:${p4Pct}%"></div></div>`
+            ${this._p4 != null ? html`<div class="bar"><div class="fill" style="width:${p4Pct}%"></div></div>`
               : ""}
             </div>
             <div class="barlabels">
@@ -1010,7 +1096,7 @@ class B2500DCard extends LitElement {
               ? html`<div class="divider"></div>` 
               : html``;
     
-            // Switch
+  
             if (entity.entity_id.startsWith("switch.")) {
               return html`
                 <div class="row">
@@ -1032,7 +1118,7 @@ class B2500DCard extends LitElement {
               `;
             }
     
-            // Select
+  
             if (entity.entity_id.startsWith("select.")) {
               return html`
                 <div class="row">
@@ -1060,7 +1146,6 @@ class B2500DCard extends LitElement {
               `;
             }
     
-            // Fallback (read-only)
             return html`
               <div class="row">
                 <div class="left">
@@ -1105,15 +1190,18 @@ class B2500DCardEditor extends LitElement {
 
 
   setConfig(config) {
-    // Defaults behalten, damit Felder sichtbar sind
     this._config = {
       output: true,
       battery: true,
       production: true,
       settings: true,
       solar: true,
+      icon: true,
       compact: false,
       max_input_power: 600,
+      max_input_power2: 600,
+      max_input_power3: 600,
+      max_input_power4: 600,
       entities: {
         battery_percentage: "",
         battery_capacity: "",
@@ -1138,7 +1226,6 @@ class B2500DCardEditor extends LitElement {
 
     const newConfig = { ...ev.detail.value };
 
-    // Wenn entities leer oder alle Werte leer, entfernen
     if (newConfig.entities) {
       const isEmpty = Object.values(newConfig.entities).every(
         (v) => v === null || v === undefined || v === ""
@@ -1206,13 +1293,16 @@ class B2500DCardEditor extends LitElement {
           },
         },
       { name: "compact", selector: { boolean: {} } },
+      { name: "icon", selector: { boolean: {} } },
       { name: "solar", selector: { boolean: {} } },
       { name: "output", selector: { boolean: {} } },
       { name: "battery", selector: { boolean: {} } },
       { name: "production", selector: { boolean: {} } },
       { name: "settings", selector: { boolean: {} } },
-      { name: "max_input_power", selector: { number: { min: 100, max: 5000, step: 50 } },
-      },
+      { name: "max_input_power", selector: { number: { min: 100, max: 5000, step: 50 } }},
+      { name: "max_input_power2", selector: { number: { min: 100, max: 5000, step: 50 } }},
+      { name: "max_input_power3", selector: { number: { min: 100, max: 5000, step: 50 } }},
+      { name: "max_input_power4", selector: { number: { min: 100, max: 5000, step: 50 } }},
     ];
 
     return html`
@@ -1237,4 +1327,5 @@ window.customCards.push({
    name: "Solar Storage Card",
    preview: false,
    description: "Visualizing solar storage systems",
+
 });
