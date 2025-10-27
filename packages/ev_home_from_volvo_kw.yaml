@@ -1,0 +1,168 @@
+homeassistant:
+  customize:
+    sensor.ev_c40_energy_kwh:
+      device_class: energy
+      state_class: total_increasing
+      unit_of_measurement: kWh
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INPUT NUMBERS (tellers & snapshots)
+# ─────────────────────────────────────────────────────────────────────────────
+input_number:
+  ev_c40_energy_alltime_kwh:
+    name: C40 energy total (kWh, all time)
+    min: 0
+    max: 100000
+    step: 0.001
+    unit_of_measurement: kWh
+    mode: box
+    initial: 0
+
+  ev_c40_last_session_kwh:
+    name: C40 last session (kWh)
+    min: 0
+    max: 100
+    step: 0.1
+    unit_of_measurement: kWh
+    mode: box
+    initial: 0
+
+  ev_c40_session_start_energy_kwh:
+    name: C40 session start energy (kWh, integrated)
+    min: 0
+    max: 100
+    step: 0.1
+    unit_of_measurement: kWh
+    mode: box
+    initial: 0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TEMPLATE SENSORS
+#  - Herkent laden via status
+#  - Converteert bron (W of kW; ook met komma's) → kW
+#  - Filtert vermogen alleen wanneer Charging
+# ─────────────────────────────────────────────────────────────────────────────
+template:
+  - binary_sensor:
+      - name: EV C40 Charging
+        unique_id: ev_c40_charging_flag
+        state: >
+          {% set st = (states('sensor.volvo_c40_charging_status') | string).lower() %}
+          {{ st == 'charging' }}
+
+    sensor:
+      # 1) Ruwe bron → ALTJD kW
+      - name: EV C40 Raw Power kW
+        unique_id: ev_c40_raw_power_kw
+        unit_of_measurement: kW
+        device_class: power
+        state_class: measurement
+        state: >
+          {# Pak de ruwe state en vervang evt. komma door punt, haal spaties weg #}
+          {% set raw = states('sensor.volvo_c40_charging_power') | string %}
+          {% set cleaned = raw.replace(' ', '').replace(',', '.') %}
+          {% set src = cleaned | float(0) %}
+          {% set unit = (state_attr('sensor.volvo_c40_charging_power','unit_of_measurement') | string) | lower %}
+          {# Heuristiek: als unit W (of Watts) of de waarde >= 50, dan is het Watt → /1000 #}
+          {% if unit in ['w','watt','watts'] or src >= 50 %}
+            {{ (src / 1000) | round(4) }}
+          {% else %}
+            {{ src | round(4) }}
+          {% endif %}
+
+      # 2) Vermogen dat telt voor energie-integratie (alleen tijdens Charging)
+      - name: EV C40 Charging Power
+        unique_id: ev_c40_charging_power_kw
+        unit_of_measurement: kW
+        device_class: power
+        state_class: measurement
+        state: >
+          {% set kw = states('sensor.ev_c40_raw_power_kw') | float(0) %}
+          {% if is_state('binary_sensor.ev_c40_charging','on') and kw > 0 %}
+            {{ kw }}
+          {% else %}
+            0
+          {% endif %}
+
+      # 3) Proxy-cumulatief (handig voor Energy Dashboard)
+      - name: EV C40 Energy Cumulative
+        unique_id: ev_c40_energy_cumulative_pub
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        state: "{{ states('sensor.ev_c40_energy_kwh') | float(0) }}"
+
+      # 4) Tekstsamenvatting laatste sessie
+      - name: EV C40 Last Session Summary
+        unique_id: ev_c40_last_session_summary
+        state: >
+          Last session: ~{{ states('input_number.ev_c40_last_session_kwh') | float(0) | round(2) }} kWh
+
+# ─────────────────────────────────────────────────────────────────────────────
+# kW → kWh integrator (monotoon stijgend; GEEN unit_prefix!)
+# ─────────────────────────────────────────────────────────────────────────────
+sensor:
+  - platform: integration
+    name: EV C40 Energy (kWh)
+    unique_id: ev_c40_energy_kwh
+    source: sensor.ev_c40_charging_power
+    unit_time: h
+    method: trapezoidal
+    round: 4
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Utility meters (dag/maand)
+# ─────────────────────────────────────────────────────────────────────────────
+utility_meter:
+  ev_c40_energy_daily:
+    source: sensor.ev_c40_energy_kwh
+    cycle: daily
+  ev_c40_energy_monthly:
+    source: sensor.ev_c40_energy_kwh
+    cycle: monthly
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Automations (2025.x schema)
+# ─────────────────────────────────────────────────────────────────────────────
+automation:
+  # Start: snapshot integrator
+  - alias: "EV C40: session start (kW→kWh)"
+    id: ev_c40_session_start
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.ev_c40_charging
+        to: "on"
+    action:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.ev_c40_session_start_energy_kwh
+        data:
+          value: "{{ states('sensor.ev_c40_energy_kwh') | float(0) }}"
+
+  # Einde: delta berekenen en optellen
+  - alias: "EV C40: session end → compute kWh"
+    id: ev_c40_session_end
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.ev_c40_charging
+        to: "off"
+        for:
+          minutes: 3 # 3 minuten geen 'Charging' = sessie klaar
+    variables:
+      start: "{{ states('input_number.ev_c40_session_start_energy_kwh') | float(0) }}"
+      end: "{{ states('sensor.ev_c40_energy_kwh') | float(0) }}"
+      delta: "{{ (end - start) | float(0) | max(0) }}"
+    action:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.ev_c40_last_session_kwh
+        data:
+          value: "{{ delta | round(3) }}"
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.ev_c40_energy_alltime_kwh
+        data:
+          value: >
+            {{ (states('input_number.ev_c40_energy_alltime_kwh') | float(0) + (delta | float(0))) | round(3) }}

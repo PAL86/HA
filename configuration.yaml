@@ -1,6 +1,8 @@
 # =========================
 # Home Assistant - configuration.yaml
 # =========================
+homeassistant:
+  packages: !include_dir_named packages
 
 # 1) Basis
 default_config:
