@@ -10,3 +10,47 @@
     metadata: {}
     data: {}
   mode: single
+- id: '1769261881759'
+  alias: New automation
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.ev_tank_ev_battery_charge
+    from:
+    to:
+    - 'on'
+  conditions:
+  - condition: device
+    device_id: fcfaaedb4eb0fda0ef76e166d8fb8ab7
+    domain: device_tracker
+    entity_id: d8e4c4ae2cb52575dbcece61045311e2
+    type: is_home
+  actions:
+  - device_id: 7191f1d79d9f643f959a2d6c2a6a7fb7
+    domain: button
+    entity_id: 7e8a9ab19dd6a1455d1c94081daef6ee
+    type: press
+  mode: single
+- id: '1769262021325'
+  alias: New automation2
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.ev_tank_ev_battery_charge
+    from:
+    to:
+    - 'off'
+  conditions:
+  - condition: device
+    device_id: fcfaaedb4eb0fda0ef76e166d8fb8ab7
+    domain: device_tracker
+    entity_id: d8e4c4ae2cb52575dbcece61045311e2
+    type: is_home
+  actions:
+  - device_id: 7191f1d79d9f643f959a2d6c2a6a7fb7
+    domain: button
+    entity_id: ea7894544e30a92c941aee5fbec4fa65
+    type: press
+  mode: single
