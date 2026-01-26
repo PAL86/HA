@@ -54,3 +54,48 @@
     entity_id: ea7894544e30a92c941aee5fbec4fa65
     type: press
   mode: single
+- id: '1769365529096'
+  alias: When C40 is charging
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.volvo_c40_charging_status
+    from:
+    to:
+    - 'on'
+  conditions:
+  - condition: device
+    device_id: fb755be4c4be745d7b201d73c8b06f5b
+    domain: device_tracker
+    entity_id: e667e59d3dd06fdf6edb25acce6d90da
+    type: is_home
+  actions:
+  - device_id: 7191f1d79d9f643f959a2d6c2a6a7fb7
+    domain: button
+    entity_id: 7e8a9ab19dd6a1455d1c94081daef6ee
+    type: press
+  mode: single
+- id: '1769365648479'
+  alias: When C40 stops charging
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.volvo_c40_charging_status
+    from:
+    to:
+    - idle
+    - done
+  conditions:
+  - condition: device
+    device_id: fb755be4c4be745d7b201d73c8b06f5b
+    domain: device_tracker
+    entity_id: e667e59d3dd06fdf6edb25acce6d90da
+    type: is_home
+  actions:
+  - device_id: 7191f1d79d9f643f959a2d6c2a6a7fb7
+    domain: button
+    entity_id: ea7894544e30a92c941aee5fbec4fa65
+    type: press
+  mode: single
