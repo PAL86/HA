@@ -99,3 +99,76 @@
     entity_id: ea7894544e30a92c941aee5fbec4fa65
     type: press
   mode: single
+- id: '1770115571530'
+  alias: EV9 / Volvo batterijbeheer met modus-geheugen
+  triggers:
+  - minutes: '*'
+    trigger: time_pattern
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.dsmr_reading_electricity_currently_returned
+        above: 0.2
+      - condition: numeric_state
+        entity_id: sensor.dsmr_reading_electricity_currently_delivered
+        below: 0.2
+      - condition: state
+        entity_id: sensor.marstek_venuse_3_0_operating_mode
+        state:
+        - Manual
+        - unknown
+      sequence:
+      - target:
+          entity_id: button.marstek_venuse_3_0_auto_mode
+        action: button.press
+        data: {}
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.dsmr_reading_electricity_currently_delivered
+        above: 0.1
+      - condition: state
+        entity_id: sensor.marstek_venuse_3_0_operating_mode
+        state:
+        - Auto
+        - unknown
+      - condition: or
+        conditions:
+        - condition: and
+          conditions:
+          - condition: state
+            entity_id: device_tracker.ev_tank_location
+            state: home
+          - condition: state
+            entity_id: binary_sensor.ev_tank_ev_battery_charge
+            state:
+            - 'on'
+        - condition: and
+          conditions:
+          - condition: state
+            entity_id: device_tracker.volvo_c40_location
+            state: home
+          - condition: state
+            entity_id: sensor.volvo_c40_charging_status
+            state: Charging
+      sequence:
+      - target:
+          entity_id: button.marstek_venuse_3_0_manual_mode
+        action: button.press
+        data: {}
+  mode: restart
+- id: '1770115888396'
+  alias: Failsafe update batterij helper elke 1 uur
+  triggers:
+  - hours: /1
+    trigger: time_pattern
+  conditions: []
+  actions:
+  - target:
+      entity_id:
+      - input_text.input_text_batterij_laatste_mode
+    data:
+      value: '{{ states(''sensor.marstek_venuse_3_0_operating_mode'') }}'
+    action: input_text.set_value
+  mode: single
