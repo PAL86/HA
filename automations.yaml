@@ -151,7 +151,8 @@
             state: home
           - condition: state
             entity_id: sensor.volvo_c40_charging_status
-            state: Charging
+            state:
+            - charging
       sequence:
       - target:
           entity_id: button.marstek_venuse_3_0_manual_mode
